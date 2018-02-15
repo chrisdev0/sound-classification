@@ -4,6 +4,7 @@ import numpy as np
 import warnings
 import progress_printer as pp
 import time
+import platform
 
 warnings.simplefilter(action='ignore', category=FutureWarning)
 warnings.simplefilter(action='ignore', category=UserWarning)
@@ -21,6 +22,12 @@ def extract_feature(file_name):
     return mfccs, chroma, mel, contrast, tonnetz
 
 
+def extract_filename(file_and_path):
+    if platform.system() == 'Windows':
+        return file_and_path.split('/')[2].split('\\')
+    return file_and_path.split('/')[3]
+
+
 def parse_audio_files(filenames, progress_printer):
     rows = len(filenames)
     features, labels, groups = np.zeros((rows, 193)), np.zeros((rows, 10)), np.zeros((rows, 1))
@@ -30,8 +37,8 @@ def parse_audio_files(filenames, progress_printer):
         try:
             mfccs, chroma, mel, contrast, tonnetz = extract_feature(fn)
             ext_features = np.hstack([mfccs, chroma, mel, contrast, tonnetz])
-            y_col = int(fn.split('/')[3].split('-')[1])
-            group = int(fn.split('/')[3].split('-')[0])
+            y_col = int(extract_filename(fn).split('-')[1])
+            group = int(extract_filename(fn).split('-')[0])
         except Exception as e:
             print("Error loading " + str(fn) + ". Reason: " + str(e))
         else:
@@ -50,6 +57,7 @@ for i in range(1, 11):
 number_of_files = len(audio_files)
 progress_printer = pp.ProgressPrinter(number_of_files)
 progress_printer.start()
+running = True
 print("Started processing " + str(number_of_files) + " files\n")
 for i in range(9):
     files = audio_files[i * 1000: (i + 1) * 1000]
@@ -65,4 +73,10 @@ for i in range(9):
         progress_printer.kill()
         progress_printer.join()
         print("Processing completed")
+        running = False
         break
+
+if not running:
+    progress_printer.kill()
+    progress_printer.join()
+    print("Processing completed")
