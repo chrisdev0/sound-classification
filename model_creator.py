@@ -1,7 +1,9 @@
 import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
+import time
 from sklearn.model_selection import train_test_split
+import progress_printer as pp
 
 # sound_names = ["air conditioner", "car horn", "children playing", "dog bark", "drilling", "engine idling","gun shot", "jackhammer", "siren", "street music"]
 
@@ -16,7 +18,7 @@ print(len(X_train), len(X_val), len(X_test), len(y_train), len(y_val), len(y_tes
 print(X_train.shape, y_train.shape)
 
 # training_epochs = 6000
-training_epochs = 6000
+training_epochs = 600
 n_dim = 193
 n_classes = 10
 n_hidden_units_one = 300
@@ -54,14 +56,19 @@ accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
 saver = tf.train.Saver()
 
+progress_output = pp.ProgressPrinter(training_epochs)
 cost_history = np.empty(shape=[1], dtype=float)
 with tf.Session() as sess:
+    fw = tf.summary.FileWriter('./summary/summary', sess.graph)
     sess.run(init)
+    progress_output.start()
     for epoch in range(training_epochs):
+        start = time.time()
         _, cost = sess.run([optimizer, cost_function], feed_dict={X: X_sub, Y: y_sub})
-        print("" + str(epoch) + "/" + str(training_epochs) + "\tCost:" + str(cost))
+        progress_output.register_progress_time(time.time() - start)
         cost_history = np.append(cost_history, cost)
-
+    progress_output.kill()
+    progress_output.join()
     print('Validation accuracy: ', round(sess.run(accuracy, feed_dict={X: X_test, Y: y_test}), 3))
     saver.save(sess, "./models/model_321.ckpt")
 
