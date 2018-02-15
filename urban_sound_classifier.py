@@ -15,6 +15,7 @@ import tensorflow as tf
 import librosa
 from flask import Flask, request
 import os
+import tensor_config as tc
 
 
 def extract_feature(file_name):
@@ -30,40 +31,16 @@ def extract_feature(file_name):
 
 n_dim = 193
 n_classes = 10
-n_hidden_units_one = 300
-n_hidden_units_two = 200
-n_hidden_units_three = 100
-sd = 1 / np.sqrt(n_dim)
-
 X = tf.placeholder(tf.float32, [None, n_dim])
 Y = tf.placeholder(tf.float32, [None, n_classes])
-
-W_1 = tf.Variable(tf.random_normal([n_dim, n_hidden_units_one], mean=0, stddev=sd), name="w1")
-b_1 = tf.Variable(tf.random_normal([n_hidden_units_one], mean=0, stddev=sd), name="b1")
-h_1 = tf.nn.sigmoid(tf.matmul(X, W_1) + b_1)
-
-W_2 = tf.Variable(tf.random_normal([n_hidden_units_one, n_hidden_units_two], mean=0, stddev=sd), name="w2")
-b_2 = tf.Variable(tf.random_normal([n_hidden_units_two], mean=0, stddev=sd), name="b2")
-h_2 = tf.nn.tanh(tf.matmul(h_1, W_2) + b_2)
-
-W_3 = tf.Variable(tf.random_normal([n_hidden_units_two, n_hidden_units_three], mean=0, stddev=sd), name="w3")
-b_3 = tf.Variable(tf.random_normal([n_hidden_units_three], mean=0, stddev=sd), name="b3")
-h_3 = tf.nn.sigmoid(tf.matmul(h_2, W_3) + b_3)
-
-W = tf.Variable(tf.random_normal([n_hidden_units_three, n_classes], mean=0, stddev=sd), name="w")
-b = tf.Variable(tf.random_normal([n_classes], mean=0, stddev=sd), name="b")
-z = tf.matmul(h_3, W) + b
-y_sigmoid = tf.nn.sigmoid(z)
-y_ = tf.nn.softmax(z)
-
-init = tf.initialize_all_variables()
+tensor_config = tc.TensorTestConfig(2, [300, 200, 100], n_dim, n_classes, X)
 
 saver = tf.train.Saver()
 sess = tf.Session()
-sess.run(init)
+sess.run(tf.global_variables_initializer())
 saver.restore(sess, './models/model_321.ckpt')
 
-app = Flask(__name__,static_folder='./')
+app = Flask(__name__, static_folder='./')
 app.config['UPLOAD_FOLDER'] = './upload'
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
@@ -79,7 +56,7 @@ def upload_file():
     file.save(audio_file)
     mfccs, chroma, mel, contrast, tonnetz = extract_feature(audio_file)
     x_data = np.hstack([mfccs, chroma, mel, contrast, tonnetz])
-    y_hat, sigmoid = sess.run([y_, y_sigmoid], feed_dict={X: x_data.reshape(1, -1)})
+    y_hat, sigmoid = sess.run([tensor_config.y_, tensor_config.y_sigmoid], feed_dict={X: x_data.reshape(1, -1)})
     index = np.argmax(y_hat)
     print(sigmoid)
     return '%d' % (index)
