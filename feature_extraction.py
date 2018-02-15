@@ -24,7 +24,7 @@ def extract_feature(file_name):
 
 def extract_filename(file_and_path):
     if platform.system() == 'Windows':
-        return file_and_path.split('/')[2].split('\\')
+        return file_and_path.split('/')[2].split('\\')[1]
     return file_and_path.split('/')[3]
 
 
