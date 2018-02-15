@@ -18,7 +18,7 @@ print(len(X_train), len(X_val), len(X_test), len(y_train), len(y_val), len(y_tes
 print(X_train.shape, y_train.shape)
 
 # training_epochs = 6000
-training_epochs = 600
+training_epochs = 6000
 n_dim = 193
 n_classes = 10
 n_hidden_units_one = 300
@@ -69,7 +69,7 @@ with tf.Session() as sess:
         cost_history = np.append(cost_history, cost)
     progress_output.kill()
     progress_output.join()
-    print('Validation accuracy: ', round(sess.run(accuracy, feed_dict={X: X_test, Y: y_test}), 3))
+    print('\nValidation accuracy: ', round(sess.run(accuracy, feed_dict={X: X_test, Y: y_test}), 3))
     saver.save(sess, "./models/model_321.ckpt")
 
 plt.plot(cost_history)
