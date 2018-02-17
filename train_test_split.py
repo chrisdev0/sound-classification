@@ -1,7 +1,7 @@
 import numpy as np
 from sklearn.model_selection import GroupShuffleSplit
 
-sound_data = np.load('urban_sound.npz')
+sound_data = np.load('processed_audio/urban_sound.npz')
 X_data = sound_data['X']
 y_data = sound_data['y']
 groups = sound_data['groups']

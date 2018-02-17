@@ -1,5 +1,5 @@
 """
- Run the web server by running the following
+ Start the web server by running the following
  Linux/MacOS
     export FLASK_APP=urban_sound_classifier.py
     flask run
@@ -33,7 +33,7 @@ n_dim = 193
 n_classes = 10
 X = tf.placeholder(tf.float32, [None, n_dim])
 Y = tf.placeholder(tf.float32, [None, n_classes])
-tensor_config = tc.TensorTestConfig(2, [300, 200, 100], n_dim, n_classes, X)
+tensor_config = tc.TensorTestConfig(3, [300, 200, 100], n_dim, n_classes, X)
 
 saver = tf.train.Saver()
 sess = tf.Session()
