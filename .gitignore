@@ -117,3 +117,6 @@ ai.iml
 models/
 
 /summary/
+/sound-classification.iml
+UrbanSound8K/
+sound-classification.iml
