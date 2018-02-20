@@ -45,6 +45,8 @@ class ProgressPrinter(threading.Thread):
         self.times.append(process_time)
         self.processed += 1
         self.left -= 1
+        if self.left <= 0:
+            self.kill()
 
     def kill(self):
         self.alive = False
