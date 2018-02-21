@@ -22,7 +22,7 @@ X = tf.placeholder(tf.float32, [None, n_dim])
 Y = tf.placeholder(tf.float32, [None, n_classes])
 
 config = tc.TensorConfig(learning_rate=0.0001, hidden_units=[300, 200, 100],
-                         config_number=3, training_epochs=1000000,
+                         config_number=3, training_epochs=4000,
                          X=X, Y=Y, n_dim=n_dim, n_classes=n_classes)
 
 # config = tc.TensorConfig(learning_rate=0.01, hidden_units=[300, 200, 100],
